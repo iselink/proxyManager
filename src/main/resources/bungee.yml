@@ -1,0 +1,4 @@
+name: proxyManager
+version: '${version}'
+main: net.iselink.proxymanager.ProxyManager
+author: Iselink

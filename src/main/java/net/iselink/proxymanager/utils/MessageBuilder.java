@@ -36,7 +36,7 @@ public class MessageBuilder {
 			textComponent.setColor(color);
 		}
 
-		components[++indexOfLastEntry] = textComponent;
+		components[indexOfLastEntry++] = textComponent;
 
 		return this;
 	}

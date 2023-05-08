@@ -1,6 +1,7 @@
 package net.iselink.proxymanager.connectivity;
 
 import net.iselink.proxymanager.connectivity.messages.Message;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public interface IManagement {
 
@@ -41,4 +42,6 @@ public interface IManagement {
 	 * @param playerName
 	 */
 	void whereIsPlayer(String playerName, String commandSenderName);
+
+	void playerLoginEvent(ProxiedPlayer player);
 }

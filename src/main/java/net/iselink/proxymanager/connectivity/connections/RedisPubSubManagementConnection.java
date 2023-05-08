@@ -8,9 +8,14 @@ import net.iselink.proxymanager.ProxyManagerPlugin;
 import net.iselink.proxymanager.connectivity.messages.Message;
 import net.iselink.proxymanager.connectivity.messages.MessageType;
 import net.iselink.proxymanager.connectivity.messages.requests.*;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Management connection implemented via redis's channels.
@@ -132,5 +137,17 @@ public class RedisPubSubManagementConnection extends ManagementConnection {
 		public MessageType getType() {
 			return type;
 		}
+	}
+
+	@Override
+	public void playerLoginEvent(ProxiedPlayer player) {
+		String playerAddress = null;
+		SocketAddress sockAdr = player.getSocketAddress();
+		if (sockAdr instanceof InetSocketAddress) {
+			InetAddress a = ((InetSocketAddress) sockAdr).getAddress();
+			if (a != null)
+				playerAddress = a.getHostAddress();
+		}
+		getTransmisitonQueue().add(new PlayerJoinBroadcastRequest(player.getName(), getProxyManager().getConfiguration().getUuid(), playerAddress));
 	}
 }

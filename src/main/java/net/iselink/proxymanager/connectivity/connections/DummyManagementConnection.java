@@ -3,6 +3,7 @@ package net.iselink.proxymanager.connectivity.connections;
 import net.iselink.proxymanager.ProxyManagerPlugin;
 import net.iselink.proxymanager.connectivity.messages.Message;
 import net.iselink.proxymanager.connectivity.messages.requests.*;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,5 +64,11 @@ public class DummyManagementConnection extends ManagementConnection {
 	@Override
 	public void whereIsPlayer(String playerName, String commandSenderName) {
 		getTransmisitonQueue().add(new WhereIsPlayerRequest(playerName, commandSenderName));
+	}
+
+	@Override
+	public void playerLoginEvent(ProxiedPlayer player) {
+		//do nothing
+		//forwarding this event into queue will kick player out, in current implementation
 	}
 }

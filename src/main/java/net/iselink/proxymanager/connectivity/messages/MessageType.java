@@ -14,6 +14,8 @@ public enum MessageType {
 	PLAYER_KICK_REQ(PlayerKickRequest.class),
 	PROXY_PING_REQ(ProxyPingRequest.class),
 	WHERE_IS_PLAYER_REQ(WhereIsPlayerRequest.class),
+	PLAYER_JOIN_BROADCAST_REQ(PlayerJoinBroadcastRequest.class),
+
 	PROXY_PING_RESPONSE(ProxyPingResponse.class),
 	WHERE_IS_PLAYER_RESPONSE(WhereIsPlayerResponse.class);
 

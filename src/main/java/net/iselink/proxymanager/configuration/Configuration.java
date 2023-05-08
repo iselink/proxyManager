@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -12,6 +13,10 @@ import java.util.logging.Logger;
  * All fields should be nicely named and explicitly annotated as exposed for finest control over config file.
  */
 public class Configuration {
+
+	@Expose
+	@SerializedName("proxy_uuid")
+	private UUID uuid = null;
 
 	@Expose
 	@SerializedName("communication_method")
@@ -48,6 +53,7 @@ public class Configuration {
 	public void initiateAsNewConfig() {
 		communicationMethod = CommunicationMethod.Dummy;
 		redisConfiguration = new RedisConfiguration();
+		uuid = UUID.randomUUID();
 	}
 
 	/**
@@ -70,6 +76,10 @@ public class Configuration {
 
 	public RedisConfiguration getRedisConfiguration() {
 		return redisConfiguration;
+	}
+
+	public UUID getUuid() {
+		return uuid;
 	}
 
 	public enum CommunicationMethod {

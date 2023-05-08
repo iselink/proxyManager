@@ -112,4 +112,8 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 	public ManagementConnection getManagementConnection() {
 		return managementConnection;
 	}
+
+	public Configuration getConfiguration() {
+		return configuration;
+	}
 }

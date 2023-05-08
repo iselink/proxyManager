@@ -1,4 +1,4 @@
 name: proxyManager
 version: '${version}'
-main: net.iselink.proxymanager.ProxyManager
+main: net.iselink.proxymanager.ProxyManagerPlugin
 author: Iselink

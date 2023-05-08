@@ -1,13 +1,18 @@
 package net.iselink.proxymanager;
 
 import net.iselink.proxymanager.commands.*;
+import net.iselink.proxymanager.configuration.Configuration;
+import net.iselink.proxymanager.connectivity.connections.DummyManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.ManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.RedisPubSubManagementConnection;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPool;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public final class ProxyManagerPlugin extends Plugin implements Listener {
@@ -15,10 +20,22 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 	private static final Logger logger = LoggerFactory.getLogger(ProxyManagerPlugin.class);
 	private ManagementConnection managementConnection = null;
 	private PluginEventListener eventListener = null;
+	private Configuration configuration = null;
+	private JedisPool redisConnection = null;
 
 	@Override
 	public void onEnable() {
 		// Plugin startup logic
+		try {
+			initiateConfiguration();
+		} catch (IOException e) {
+			getSLF4JLogger().error("Error while loading configuration (saving new one) - check your filesystem and stack trace below.");
+			e.printStackTrace();
+			return;
+		}
+
+		configuration.printConfig(getLogger());
+
 		eventListener = new PluginEventListener(this);
 
 		//register itself for some event handlers
@@ -32,17 +49,58 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		getProxy().getPluginManager().registerCommand(this, new WhereIsCommand(this));
 
 
-		//create dummy connection
-		//TODO: for development only ↓
-		//managementConnection = new DummyManagementConnection(this);
-		managementConnection = new RedisPubSubManagementConnection(this);
-
+		//create management connection
+		switch (configuration.getCommunicationMethod()) {
+			case Dummy: {
+				managementConnection = new DummyManagementConnection(this);
+				break;
+			}
+			case Redis: {
+				redisConnection = new JedisPool(
+						configuration.getRedisConfiguration().getHost(),
+						configuration.getRedisConfiguration().getPort(),
+						configuration.getRedisConfiguration().getUser(),
+						configuration.getRedisConfiguration().getPassword());
+				managementConnection = new RedisPubSubManagementConnection(this, redisConnection);
+				break;
+			}
+			default: {
+				getLogger().warning("Unknown method: " + configuration.getCommunicationMethod());
+				getLogger().warning("This is plugin error and you should report this (for now, created dummy connection instead).");
+				managementConnection = new DummyManagementConnection(this);
+				break;
+			}
+		}
 
 		//pooling from management connection
 		getProxy().getScheduler().schedule(this, () -> {
 			managementConnection.processEvents();
 		}, 1L, 100L, TimeUnit.MILLISECONDS);
 
+
+	}
+
+	/**
+	 * Load configuration from config file.
+	 * If this file is missing, create new one.
+	 */
+	private void initiateConfiguration() throws IOException {
+		File folder = getDataFolder();
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+
+		File configFile = new File(folder, "config.json");
+		if (configFile.exists()) {
+			//load it
+			configuration = Configuration.loadFromFile(configFile);
+		} else {
+			//save new one and initiate new config
+			configuration = new Configuration();
+			configuration.initiateAsNewConfig();
+			configuration.saveToFile(configFile);
+			getLogger().info("Created a new config file - please stop proxy server and configure plugin now.");
+		}
 
 	}
 

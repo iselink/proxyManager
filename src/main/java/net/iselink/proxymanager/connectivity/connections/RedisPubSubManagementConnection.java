@@ -11,7 +11,6 @@ import net.iselink.proxymanager.connectivity.messages.requests.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
-import redis.clients.jedis.Protocol;
 
 /**
  * Management connection implemented via redis's channels.
@@ -82,9 +81,9 @@ public class RedisPubSubManagementConnection extends ManagementConnection {
 		}
 	};
 
-	public RedisPubSubManagementConnection(ProxyManagerPlugin proxyManagerPlugin) {
+	public RedisPubSubManagementConnection(ProxyManagerPlugin proxyManagerPlugin, JedisPool redisConnection) {
 		super(proxyManagerPlugin);
-		pool = new JedisPool("10.0.0.200", Protocol.DEFAULT_PORT);    //TODO: hardcoded value, use config file... .)
+		pool = redisConnection;
 
 		proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, transmissionRunnable);
 		proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, recvRunnable);

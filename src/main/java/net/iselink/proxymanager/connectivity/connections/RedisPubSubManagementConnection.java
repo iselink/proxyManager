@@ -8,7 +8,9 @@ import net.iselink.proxymanager.ProxyManagerPlugin;
 import net.iselink.proxymanager.connectivity.messages.Message;
 import net.iselink.proxymanager.connectivity.messages.MessageType;
 import net.iselink.proxymanager.connectivity.messages.requests.*;
+import net.iselink.proxymanager.utils.IDisposable;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -20,7 +22,7 @@ import java.net.SocketAddress;
 /**
  * Management connection implemented via redis's channels.
  */
-public class RedisPubSubManagementConnection extends ManagementConnection {
+public class RedisPubSubManagementConnection extends ManagementConnection implements IDisposable {
 
 	/**
 	 * Name of the channel which is used to communication between proxies.
@@ -28,6 +30,8 @@ public class RedisPubSubManagementConnection extends ManagementConnection {
 	private static final String CHANNEL_NAME = "PROXY_COMMAND";
 
 	private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+	private final ScheduledTask txTask;
+	private final ScheduledTask recvTask;
 	private JedisPool pool;
 
 	private final Runnable transmissionRunnable = () -> {
@@ -90,8 +94,8 @@ public class RedisPubSubManagementConnection extends ManagementConnection {
 		super(proxyManagerPlugin);
 		pool = redisConnection;
 
-		proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, transmissionRunnable);
-		proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, recvRunnable);
+		txTask = proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, transmissionRunnable);
+		recvTask = proxyManagerPlugin.getProxy().getScheduler().runAsync(proxyManagerPlugin, recvRunnable);
 	}
 
 	@Override
@@ -149,5 +153,12 @@ public class RedisPubSubManagementConnection extends ManagementConnection {
 				playerAddress = a.getHostAddress();
 		}
 		getTransmisitonQueue().add(new PlayerJoinBroadcastRequest(player.getName(), getProxyManager().getConfiguration().getUuid(), playerAddress));
+	}
+
+	@Override
+	public void dispose() {
+		txTask.cancel();
+		recvTask.cancel();
+		pool.close();
 	}
 }

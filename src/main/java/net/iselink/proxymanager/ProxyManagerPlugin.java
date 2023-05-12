@@ -5,9 +5,11 @@ import net.iselink.proxymanager.configuration.Configuration;
 import net.iselink.proxymanager.connectivity.connections.DummyManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.ManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.RedisPubSubManagementConnection;
+import net.iselink.proxymanager.utils.IDisposable;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -24,6 +26,8 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 	private PluginEventListener eventListener = null;
 	private Configuration configuration = null;
 	private JedisPool redisConnection = null;
+	private ScheduledTask poolingEventTask;
+	private ScheduledTask redisRefreshTask;
 
 	@Override
 	public void onEnable() {
@@ -76,7 +80,7 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		}
 
 		//pooling from management connection
-		getProxy().getScheduler().schedule(this, () -> {
+		poolingEventTask = getProxy().getScheduler().schedule(this, () -> {
 			managementConnection.processEvents();
 		}, 1L, 100L, TimeUnit.MILLISECONDS);
 
@@ -86,7 +90,7 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		//every refresh is rescheduled as async
 		if (getConfiguration().isRedisSyncActivePlayer()) {
 			getLogger().info("Enabled refreshing Redis...");
-			getProxy().getScheduler().schedule(this, () -> {
+			redisRefreshTask = getProxy().getScheduler().schedule(this, () -> {
 				getProxy().getScheduler().runAsync(this, ()-> {
 					for (ProxiedPlayer player : getProxy().getPlayers()) {
 						try (Jedis jedis = redisConnection.getResource()) {
@@ -127,6 +131,26 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 	@Override
 	public void onDisable() {
 		// Plugin shutdown logic
+		logger.info("Proxy manager is shutting down - please wait.");
+
+		poolingEventTask.cancel();
+		redisRefreshTask.cancel();
+
+		//clear mgmt conn
+		if (managementConnection instanceof IDisposable) {
+			logger.info("Closing down management connection...");
+			((IDisposable) managementConnection).dispose();
+		}
+		managementConnection = null;
+
+		// close redis connection
+		if (redisConnection != null) {
+			logger.info("Closing Redis connection...");
+			redisConnection.close();
+			redisConnection = null;
+		}
+
+
 	}
 
 	public ManagementConnection getManagementConnection() {

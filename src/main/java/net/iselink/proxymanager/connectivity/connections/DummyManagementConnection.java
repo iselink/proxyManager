@@ -3,6 +3,7 @@ package net.iselink.proxymanager.connectivity.connections;
 import net.iselink.proxymanager.ProxyManagerPlugin;
 import net.iselink.proxymanager.connectivity.messages.Message;
 import net.iselink.proxymanager.connectivity.messages.requests.*;
+import net.iselink.proxymanager.utils.IDisposable;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple loopback-ish dummy connection for early development.
  */
-public class DummyManagementConnection extends ManagementConnection {
+public class DummyManagementConnection extends ManagementConnection implements IDisposable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyManagementConnection.class);
 	private final Thread copyThread;
@@ -70,5 +71,10 @@ public class DummyManagementConnection extends ManagementConnection {
 	public void playerLoginEvent(ProxiedPlayer player) {
 		//do nothing
 		//forwarding this event into queue will kick player out, in current implementation
+	}
+
+	@Override
+	public void dispose() {
+		copyThread.interrupt();
 	}
 }

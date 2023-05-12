@@ -49,6 +49,7 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		getProxy().getPluginManager().registerCommand(this, new ProxyPingCommand(this));
 		getProxy().getPluginManager().registerCommand(this, new KickAllCommand(this));
 		getProxy().getPluginManager().registerCommand(this, new WhereIsCommand(this));
+		getProxy().getPluginManager().registerCommand(this, new PingCommand(this));
 
 
 		//create management connection

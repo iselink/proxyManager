@@ -10,7 +10,7 @@ public class ProxyPingCommand extends Command {
 	private final ProxyManagerPlugin manager;
 
 	public ProxyPingCommand(ProxyManagerPlugin manager) {
-		super("proxyping");	//TODO: implement authentication or something like this
+		super("proxyping");    //TODO: implement authentication or something like this
 		this.manager = manager;
 	}
 

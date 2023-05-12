@@ -3,11 +3,11 @@ package net.iselink.proxymanager.connectivity.messages.requests;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.iselink.proxymanager.ProxyManagerPlugin;
-import net.iselink.proxymanager.connectivity.messages.MessageType;
-import net.iselink.proxymanager.utils.Utils;
 import net.iselink.proxymanager.connectivity.connections.ManagementConnection;
 import net.iselink.proxymanager.connectivity.messages.IMessageExecute;
 import net.iselink.proxymanager.connectivity.messages.MessageRequest;
+import net.iselink.proxymanager.connectivity.messages.MessageType;
+import net.iselink.proxymanager.utils.Utils;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -63,7 +63,6 @@ public class PlayerKickRequest extends MessageRequest implements IMessageExecute
 
 		//TODO: send back PlayerKickResponse
 	}
-
 
 
 }

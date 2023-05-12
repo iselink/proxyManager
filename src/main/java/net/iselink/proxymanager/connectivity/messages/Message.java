@@ -11,7 +11,7 @@ public abstract class Message {
 
 	@Expose
 	@SerializedName("message_type")
-	private final MessageType	messageType;
+	private final MessageType messageType;
 
 	public Message(MessageType messageType) {
 		this.messageType = messageType;

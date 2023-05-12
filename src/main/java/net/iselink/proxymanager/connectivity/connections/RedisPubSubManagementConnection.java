@@ -133,16 +133,6 @@ public class RedisPubSubManagementConnection extends ManagementConnection implem
 		getTransmisitonQueue().add(new WhereIsPlayerRequest(playerName, commandSenderName));
 	}
 
-	private static class TempMessageTypeClass {
-		@Expose
-		@SerializedName("message_type")
-		private MessageType type;
-
-		public MessageType getType() {
-			return type;
-		}
-	}
-
 	@Override
 	public void playerLoginEvent(ProxiedPlayer player) {
 		String playerAddress = null;
@@ -160,5 +150,15 @@ public class RedisPubSubManagementConnection extends ManagementConnection implem
 		txTask.cancel();
 		recvTask.cancel();
 		pool.close();
+	}
+
+	private static class TempMessageTypeClass {
+		@Expose
+		@SerializedName("message_type")
+		private MessageType type;
+
+		public MessageType getType() {
+			return type;
+		}
 	}
 }

@@ -13,7 +13,7 @@ public class WhereIsCommand extends Command {
 	private final ProxyManagerPlugin proxyManagerPlugin;
 
 	public WhereIsCommand(ProxyManagerPlugin proxyManagerPlugin) {
-		super("whereis");	//TODO: add some sort of security
+		super("whereis");    //TODO: add some sort of security
 		this.proxyManagerPlugin = proxyManagerPlugin;
 	}
 
@@ -29,10 +29,10 @@ public class WhereIsCommand extends Command {
 		if (player != null) {
 			//player is connected to this proxy
 			sender.sendMessage(new MessageBuilder()
-							.addText("Player ")
-							.addText(player.getName(), ChatColor.GOLD)
-							.addText(" is on server ")
-							.addText(player.getServer().getInfo().getName(), ChatColor.GOLD)
+					.addText("Player ")
+					.addText(player.getName(), ChatColor.GOLD)
+					.addText(" is on server ")
+					.addText(player.getServer().getInfo().getName(), ChatColor.GOLD)
 					.toArray());
 			return;
 		}

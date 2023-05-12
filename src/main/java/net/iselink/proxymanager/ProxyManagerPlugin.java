@@ -91,7 +91,7 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		if (getConfiguration().isRedisSyncActivePlayer()) {
 			getLogger().info("Enabled refreshing Redis...");
 			redisRefreshTask = getProxy().getScheduler().schedule(this, () -> {
-				getProxy().getScheduler().runAsync(this, ()-> {
+				getProxy().getScheduler().runAsync(this, () -> {
 					for (ProxiedPlayer player : getProxy().getPlayers()) {
 						try (Jedis jedis = redisConnection.getResource()) {
 							//you can't do this on older version of redis

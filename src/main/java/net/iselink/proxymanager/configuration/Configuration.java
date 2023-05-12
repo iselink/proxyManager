@@ -4,7 +4,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -30,7 +33,7 @@ public class Configuration {
 	@SerializedName("redis_sync_active_players")
 	private boolean redisSyncActivePlayer = false;
 
-	public static Configuration loadFromFile(File file) throws FileNotFoundException, IOException {
+	public static Configuration loadFromFile(File file) throws IOException {
 		try (FileReader reader = new FileReader(file)) {
 			return new GsonBuilder()
 					.excludeFieldsWithoutExposeAnnotation()
@@ -71,7 +74,6 @@ public class Configuration {
 				logger.info("Redis host: " + redisConfiguration.getHost());
 				logger.info("Redis port: " + redisConfiguration.getPort());
 				break;
-
 		}
 		if (redisSyncActivePlayer && (redisConfiguration == null || (redisConfiguration.getHost() == null || redisConfiguration.getHost().length() == 0))) {
 			logger.warning("Redis active player sync is enabled, but no redis configuration is set!");

@@ -21,7 +21,7 @@ public class Utils {
 	 * All strings will be concatenated with space in between.
 	 *
 	 * @param startIndex Index of first string to concatenate.
-	 * @param strings Strings to concatenate.
+	 * @param strings    Strings to concatenate.
 	 * @return String of all strings.
 	 */
 	public static String makeStringFromStrings(int startIndex, int endIndex, String... strings) {

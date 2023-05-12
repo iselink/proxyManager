@@ -26,6 +26,10 @@ public class Configuration {
 	@SerializedName("redis")
 	private RedisConfiguration redisConfiguration = null;
 
+	@Expose
+	@SerializedName("redis_sync_active_players")
+	private boolean redisSyncActivePlayer = false;
+
 	public static Configuration loadFromFile(File file) throws FileNotFoundException, IOException {
 		try (FileReader reader = new FileReader(file)) {
 			return new GsonBuilder()
@@ -67,6 +71,10 @@ public class Configuration {
 				logger.info("Redis host: " + redisConfiguration.getHost());
 				logger.info("Redis port: " + redisConfiguration.getPort());
 				break;
+
+		}
+		if (redisSyncActivePlayer && (redisConfiguration == null || (redisConfiguration.getHost() == null || redisConfiguration.getHost().length() == 0))) {
+			logger.warning("Redis active player sync is enabled, but no redis configuration is set!");
 		}
 	}
 
@@ -80,6 +88,10 @@ public class Configuration {
 
 	public UUID getUuid() {
 		return uuid;
+	}
+
+	public boolean isRedisSyncActivePlayer() {
+		return redisSyncActivePlayer;
 	}
 
 	public enum CommunicationMethod {

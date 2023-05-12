@@ -5,10 +5,12 @@ import net.iselink.proxymanager.configuration.Configuration;
 import net.iselink.proxymanager.connectivity.connections.DummyManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.ManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.RedisPubSubManagementConnection;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.File;
@@ -77,6 +79,23 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 			managementConnection.processEvents();
 		}, 1L, 100L, TimeUnit.MILLISECONDS);
 
+		//refresh redis players every 20 seconds
+		//by hardcoded value, every entry will expire after 120 seconds
+		//which mean 6 attempts before this information is lost.
+		//every refresh is rescheduled as async
+		if (getConfiguration().isRedisSyncActivePlayer()) {
+			getLogger().info("Enabled refreshing Redis...");
+			getProxy().getScheduler().schedule(this, () -> {
+				getProxy().getScheduler().runAsync(this, ()-> {
+					for (ProxiedPlayer player : getProxy().getPlayers()) {
+						try (Jedis jedis = redisConnection.getResource()) {
+							//you can't do this on older version of redis
+							jedis.expire(player.getName(), 120);
+						}
+					}
+				});
+			}, 20, TimeUnit.SECONDS);
+		}
 
 	}
 
@@ -115,5 +134,9 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 
 	public Configuration getConfiguration() {
 		return configuration;
+	}
+
+	public JedisPool getRedisConnection() {
+		return redisConnection;
 	}
 }

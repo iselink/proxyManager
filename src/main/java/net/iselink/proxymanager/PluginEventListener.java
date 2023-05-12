@@ -2,12 +2,17 @@ package net.iselink.proxymanager;
 
 import net.iselink.proxymanager.events.BroadcastEvent;
 import net.iselink.proxymanager.events.ProxyPingResponseEvent;
+import net.iselink.proxymanager.utils.MessageBuilder;
+import net.iselink.proxymanager.utils.RedisPlayerInformation;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import redis.clients.jedis.Jedis;
 
 import java.util.logging.Logger;
 
@@ -34,7 +39,41 @@ public class PluginEventListener implements Listener {
 
 	@EventHandler
 	public void onPlayerPreJoin(PostLoginEvent event) {
-		proxyManagerPlugin.getManagementConnection().playerLoginEvent(event.getPlayer());
+		//if redis sync is enabled, check if player is set
+		//otherwise send login event
+		if (proxyManagerPlugin.getConfiguration().isRedisSyncActivePlayer()) {
+			try (Jedis jedis = proxyManagerPlugin.getRedisConnection().getResource()) {
+				boolean exist = jedis.exists(event.getPlayer().getName());
+				if (exist) {
+					event.getPlayer().disconnect(new MessageBuilder().addText("You are already connected from different proxy.").toArray());
+				} else {
+					jedis.setex(event.getPlayer().getName(), 60 * 2, new RedisPlayerInformation(event.getPlayer()).toJson());    //TODO: hardcoded expiry time
+				}
+			}
+
+		} else {
+			proxyManagerPlugin.getManagementConnection().playerLoginEvent(event.getPlayer());
+		}
+	}
+
+	@EventHandler
+	public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+		if (proxyManagerPlugin.getConfiguration().isRedisSyncActivePlayer()) {
+			//remove player from redis
+			try (Jedis jedis = proxyManagerPlugin.getRedisConnection().getResource()) {
+				jedis.del(event.getPlayer().getName());
+			}
+		}
+	}
+
+	@EventHandler
+	public void onPlayerServerReconnect(ServerSwitchEvent event) {
+		if (proxyManagerPlugin.getConfiguration().isRedisSyncActivePlayer()) {
+			//remove player from redis
+			try (Jedis jedis = proxyManagerPlugin.getRedisConnection().getResource()) {
+				jedis.setex(event.getPlayer().getName(), 60 * 2, new RedisPlayerInformation(event.getPlayer()).toJson());//TODO: hardcoded expiry time
+			}
+		}
 	}
 
 	@EventHandler

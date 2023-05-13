@@ -10,7 +10,7 @@ public class KickAllCommand extends Command {
 	private final ProxyManagerPlugin manager;
 
 	public KickAllCommand(ProxyManagerPlugin manager) {
-		super("kickall");
+		super("kickall", CommandPermissions.KICK_ALL.getPermission());
 		this.manager = manager;
 	}
 

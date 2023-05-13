@@ -10,7 +10,7 @@ public class BroadcastCommand extends Command {
 	private final ProxyManagerPlugin proxyManagerPlugin;
 
 	public BroadcastCommand(ProxyManagerPlugin proxyManagerPlugin) {
-		super("broadcast");    //TODO: add permission or security check
+		super("broadcast", CommandPermissions.BROADCAST.getPermission());
 		this.proxyManagerPlugin = proxyManagerPlugin;
 	}
 

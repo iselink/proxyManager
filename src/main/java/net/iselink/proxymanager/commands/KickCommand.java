@@ -11,7 +11,7 @@ public class KickCommand extends Command {
 	private final ProxyManagerPlugin proxyManagerPlugin;
 
 	public KickCommand(ProxyManagerPlugin proxyManagerPlugin) {
-		super("kick"); //TODO: permission check
+		super("kick", CommandPermissions.KICK.getPermission());
 		this.proxyManagerPlugin = proxyManagerPlugin;
 	}
 

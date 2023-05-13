@@ -13,7 +13,7 @@ public class WhereIsCommand extends Command {
 	private final ProxyManagerPlugin proxyManagerPlugin;
 
 	public WhereIsCommand(ProxyManagerPlugin proxyManagerPlugin) {
-		super("whereis");    //TODO: add some sort of security
+		super("whereis", CommandPermissions.WHERE_IS.getPermission());
 		this.proxyManagerPlugin = proxyManagerPlugin;
 	}
 

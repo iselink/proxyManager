@@ -13,7 +13,7 @@ public class PingCommand extends Command {
 	private final ProxyManagerPlugin proxyManagerPlugin;
 
 	public PingCommand(ProxyManagerPlugin proxyManagerPlugin) {
-		super("ping");
+		super("ping", CommandPermissions.PING.getPermission());
 		this.proxyManagerPlugin = proxyManagerPlugin;
 	}
 

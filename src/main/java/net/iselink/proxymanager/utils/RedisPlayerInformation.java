@@ -16,7 +16,7 @@ public class RedisPlayerInformation {
 	public RedisPlayerInformation(ProxiedPlayer player) {
 		this.name = player.getName();
 		this.forge_user = player.isForgeUser();
-		this.server = player.getServer().getInfo().getName();
+		this.server = player.getServer() != null ? player.getServer().getInfo().getName() : null;
 		if (player.getUniqueId() != null)
 			this.uuid = player.getUniqueId().toString();
 		else

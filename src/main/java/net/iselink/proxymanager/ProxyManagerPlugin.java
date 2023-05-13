@@ -138,8 +138,8 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		// Plugin shutdown logic
 		logger.info("Proxy manager is shutting down - please wait.");
 
-		poolingEventTask.cancel();
-		redisRefreshTask.cancel();
+		if (poolingEventTask != null) poolingEventTask.cancel();
+		if (redisRefreshTask != null) redisRefreshTask.cancel();
 
 		//clear mgmt conn
 		if (managementConnection instanceof IDisposable) {
@@ -155,6 +155,8 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 			redisConnection = null;
 		}
 
+		poolingEventTask = null;
+		redisRefreshTask = null;
 
 	}
 

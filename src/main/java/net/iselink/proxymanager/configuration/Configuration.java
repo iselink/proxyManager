@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -32,6 +33,11 @@ public class Configuration {
 	@Expose
 	@SerializedName("redis_sync_active_players")
 	private boolean redisSyncActivePlayer = false;
+
+	@Expose
+	@SerializedName("custom_commands")
+	private ArrayList<CustomCommandConfiguration> customCommands = new ArrayList();
+
 
 	public static Configuration loadFromFile(File file) throws IOException {
 		try (FileReader reader = new FileReader(file)) {
@@ -78,6 +84,11 @@ public class Configuration {
 		if (redisSyncActivePlayer && (redisConfiguration == null || (redisConfiguration.getHost() == null || redisConfiguration.getHost().length() == 0))) {
 			logger.warning("Redis active player sync is enabled, but no redis configuration is set!");
 		}
+	}
+
+
+	public ArrayList<CustomCommandConfiguration> getCustomCommands() {
+		return customCommands;
 	}
 
 	public CommunicationMethod getCommunicationMethod() {

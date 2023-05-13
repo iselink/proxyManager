@@ -2,6 +2,7 @@ package net.iselink.proxymanager;
 
 import net.iselink.proxymanager.commands.*;
 import net.iselink.proxymanager.configuration.Configuration;
+import net.iselink.proxymanager.configuration.CustomCommandConfiguration;
 import net.iselink.proxymanager.connectivity.connections.DummyManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.ManagementConnection;
 import net.iselink.proxymanager.connectivity.connections.RedisPubSubManagementConnection;
@@ -55,6 +56,10 @@ public final class ProxyManagerPlugin extends Plugin implements Listener {
 		getProxy().getPluginManager().registerCommand(this, new WhereIsCommand(this));
 		getProxy().getPluginManager().registerCommand(this, new PingCommand(this));
 
+		//create and register custom commands
+		for (CustomCommandConfiguration ccc : configuration.getCustomCommands()) {
+			getProxy().getPluginManager().registerCommand(this, new CustomCommand(ccc));
+		}
 
 		//create management connection
 		switch (configuration.getCommunicationMethod()) {
